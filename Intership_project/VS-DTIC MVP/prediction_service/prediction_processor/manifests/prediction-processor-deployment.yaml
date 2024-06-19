@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: prediction-processor
-        image: alextno/prediction_processor_kube:latest
+        image: alextno/prediction_processor:latest
         env:
         - name: DOCKER_HOST
           value: "tcp://docker-host:2375"

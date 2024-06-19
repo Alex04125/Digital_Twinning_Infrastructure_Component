@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: api-gateway-deployment
 spec:
-  replicas: 2  # example of running two replicas for redundancy
+  replicas: 1  # example of running two replicas for redundancy
   selector:
     matchLabels:
       app: api-gateway

@@ -76,11 +76,18 @@ async def process_instance(data):
     shutil.copy(source_file_path, input_file_path)
     logger.info(f"File {file_name} copied to '{input_file_path}' as 'input.json'.")
     shutil.rmtree(temp_dir)
-    prediction_script_path = "/shared_data/prediction_script/prediction_script.py"
+    
+    prediction_script_dir = f"/shared_data/{module_name}"
+    prediction_script_path = os.path.join(prediction_script_dir, 'prediction_script.py')
+    requirements_prediction_path = os.path.join(prediction_script_dir, 'requirements.txt')
 
-    os.makedirs(os.path.dirname(prediction_script_path), exist_ok=True)
-    shutil.copy('prediction_script.py', prediction_script_path)
-    logger.info("Prediction script copied to shared_data.")
+    if not os.path.exists(prediction_script_path):
+        logger.error(f"Prediction script not found in the directory {prediction_script_dir}.")
+        return
+
+    if not os.path.exists(requirements_prediction_path):
+        logger.error(f"Requirements file for prediction not found in the directory {prediction_script_dir}.")
+        return
 
     try:
         logger.info(f"Pulling Docker image: {image_name}")
@@ -94,14 +101,15 @@ async def process_instance(data):
         container.remove(force=True)
         logger.info("Container finished execution and removed.")
         
-        dockerfile_content = """
-        FROM python:3.8
-        WORKDIR /app
-        COPY prediction_script/prediction_script.py /app/
-        COPY model.pkl /app/
-        RUN pip install numpy scikit-learn==1.0.2
-        CMD ["python", "/app/prediction_script.py"]
-        """
+        dockerfile_content = f"""FROM python:3.8
+WORKDIR /app
+COPY {module_name}/prediction_script.py /app/
+COPY model.pkl /app/
+COPY {module_name}/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+CMD ["python", "/app/prediction_script.py"]
+"""
+
         dockerfile_path = "/shared_data/Dockerfile"
         with open(dockerfile_path, 'w') as dockerfile:
             dockerfile.write(dockerfile_content)

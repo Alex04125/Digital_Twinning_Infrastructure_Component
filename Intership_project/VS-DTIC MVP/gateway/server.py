@@ -55,19 +55,19 @@ async def get_instance(instance_name: str):
 
 
 async def forward_request(request: Request, url: str):
-    try:
-        data = await request.json()
-        async with httpx.AsyncClient(timeout=20.0) as client:
-            response = await client.post(url, json=data)
-            return handle_response(response)
-    except httpx.RequestError as exc:
-        logger.error(f"Communication error with service: {str(exc)}")
-        raise HTTPException(
-            status_code=503, detail=f"Error communicating with the service: {str(exc)}"
-        )
-    except Exception as exc:
-        logger.error(f"General error: {str(exc)}")
-        raise HTTPException(status_code=500, detail=str(exc))
+    # try:
+    data = await request.json()
+    async with httpx.AsyncClient(timeout=100.0) as client:
+         response = await client.post(url, json=data)
+         return handle_response(response)
+    # except httpx.RequestError as exc:
+    #     logger.error(f"Communication error with service: {str(exc)}")
+    #     raise HTTPException(
+    #         status_code=503, detail=f"Error communicating with the service: {str(exc)}"
+    #     )
+    # except Exception as exc:
+    #     logger.error(f"General error: {str(exc)}")
+    #     raise HTTPException(status_code=500, detail=str(exc))
 
 
 async def forward_request_to_get(url: str):

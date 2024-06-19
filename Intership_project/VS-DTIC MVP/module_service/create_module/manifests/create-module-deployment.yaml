@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: create-module
-        image: alextno/create_module_kube:latest
+        image: alextno/create_module:latest
         ports:
         - containerPort: 5000
